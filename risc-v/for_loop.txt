@@ -1,0 +1,7 @@
+    addi t1, zero, 0
+    addi t2, zero, 10
+
+    beq t1, t2, done
+    addi t1, t1, 1
+done:
+    # end

@@ -2,8 +2,10 @@ import javax.management.RuntimeErrorException;
 
 public class StackArray<T> {
     
+    @SuppressWarnings("FieldMayBeFinal")
     private T[] stackArray;
 
+    @SuppressWarnings("FieldMayBeFinal")
     private int size;
 
     private int pointer = -1;
@@ -22,12 +24,16 @@ public class StackArray<T> {
         return pointer == -1;
     }
 
+    public boolean isFull() {
+        return pointer == size - 1;
+    }
+
     public void push(T key) {
-        if (pointer == size) {
+        if (pointer == size - 1) {
             throw new RuntimeErrorException(null, "Stack is full");
         }
-        stackArray[pointer] = key;
         pointer++;
+        stackArray[pointer] = key;
     }
 
     public T pop() {

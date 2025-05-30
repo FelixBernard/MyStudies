@@ -1,5 +1,6 @@
 
 import java.util.Arrays;
+import java.util.Scanner;
 
 public class Main {
     public static void main(String [] args) {
@@ -65,8 +66,27 @@ public class Main {
         System.out.println("--- Stack Section ---");
         
         StackHandler<String> stack = new StackHandler<>();
-        stack.push("Moin");
-        System.out.println(stack.pop());
-        System.out.println(stack.pop());
+        stack.push("H");
+        stack.push("a");
+        stack.push("l");
+        stack.push("l");
+        stack.push("o");
+        System.out.println(stack.pop() + stack.pop() + stack.pop() + stack.pop() + stack.pop());
+
+        /*
+         * Queue Section
+         */
+        System.out.println("--- Queue Section ---");
+
+        try (Scanner scanner = new Scanner(System.in)) {
+            StackArray<String> stackArray = new StackArray<>(9);
+            while (!stackArray.isFull()) {
+                stackArray.push(scanner.nextLine());
+            }
+            
+            while (!stackArray.isEmpty()) {
+                System.out.print(stackArray.pop());
+            }
+        }
     }
 }
