@@ -1,0 +1,1 @@
+In this repo I show data structures/ideas/implementations/solutions/further developments from my lectures and exercises from my degree program
