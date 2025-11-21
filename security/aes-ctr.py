@@ -19,7 +19,7 @@ def pipline(nonce, key, counter):
 def enc(m, nonce, key):
     c = []
     j = 0
-    if (len(m)/block_size > 2 ** counter_size):
+    if (len(m) > 2 ** counter_size * block_size):
         print("M is to long")
         return c
     while (len(m[j*block_size:]) >= block_size):
@@ -27,15 +27,18 @@ def enc(m, nonce, key):
         pip_out = xor(pip_out, m[j*block_size:j*block_size+block_size])
         c = c + pip_out
         j += 1
-        print(pip_out)
     if (len(m[j*block_size:]) == 0):
         return c
     else:
-        while len(m[j*block_size:]) < block_size:
-            m.append(0)
         pip_out = pipline(nonce, key, j)
-        pip_out = xor(pip_out, m[j*block_size:j*block_size+block_size+1])
+
+        last_block = m[j*block_size:]
+        while len(last_block) < block_size:
+            last_block.append(0)
+
+        pip_out = xor(pip_out, last_block)
         c = c + pip_out
+
         return c
 
 def built_vector(nonce:list, counter:int):
@@ -69,28 +72,54 @@ def bit_to_string(bits):
         byte_str = ''.join(str(b) for b in byte_bits)
         byte_val = int(byte_str, 2)
         chars.append(chr(byte_val))
-        print(chr(byte_val))
     return ''.join(chars)
+
+def bytes_to_bit_list(data: bytes) -> list:
+    bits = []
+    for byte in data:
+        bits.extend([ (byte >> i) & 1 for i in reversed(range(8)) ])
+    return bits
+
+def bit_list_to_bytes(bits: list) -> bytes:
+    out = bytearray()
+    for i in range(0, len(bits), 8):
+        byte_bits = bits[i:i+8]
+        if len(byte_bits) < 8:
+            byte_bits += [0] * (8 - len(byte_bits))  # padding
+        byte = int("".join(str(b) for b in byte_bits), 2)
+        out.append(byte)
+    return bytes(out)
+
 
 def main():
     ### setup
     nonce = gen_nonce()
-    print(nonce)
+    print("Nonce in bits: \n" + str(nonce))
 
     ### massage
     massage = str(input("Your massage that should be encrypted: \n"))
     massage_bits = string_to_bit_list(massage)
-    print(massage_bits)
+    print("Massage in bits: \n" + str(massage_bits))
 
     ### key
     key = str(input("Your key for the encryption: \n"))
     key = string_to_bit_list(key)
-    print(key)
+    # print("Key in bits: \n" + str(key))
 
-    c = enc(massage_bits, [1, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1], key)
+    with open("ciper", "rb") as f:
+        data = f.read()  # bytes object
 
-    print(c)
-    print(bit_to_string(c))
+    bb = bytes_to_bit_list(data)
+
+    cipher_bits = enc(bb, [1, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1], key)
+
+    print("Cypertext in bits: \n" + str(cipher_bits))
+    print("Cypertext in string: \n" + bit_to_string(cipher_bits))
+
+    cipher_bytes = bit_list_to_bytes(cipher_bits)
+
+    with open("info", "wb") as f:
+        f.write(cipher_bytes)
     
 
 if __name__ == '__main__':
